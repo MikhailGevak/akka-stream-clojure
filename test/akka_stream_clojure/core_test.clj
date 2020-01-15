@@ -7,32 +7,41 @@
             [akka.stream.flow :as flow]
             [scala.interop :as scala])
   (:import (scala Unit)
-           (scala.collection.immutable List)))
+           (scala.collection.immutable List)
+           (akka.stream.scaladsl RunnableGraph)))
 
-(def mat (dsl/create-mat "test-system"))
+(def context (dsl/create-context "test-system"))
 
-
-(defn run-graph-and-wait [graph]
-  (scala/await (dsl/run ^RunnableGraph graph mat) 1000))
+(defn run-graph-and-wait
+  ([graph timeout] (scala/await (dsl/run ^RunnableGraph graph (:mat context)) timeout))
+  ([graph] (run-graph-and-wait graph 1000)))
 
 (deftest flow-test
   (let
-    [graph (dsl/to-mat
-             (dsl/->
-               (source/from-seq [1 2 3 4 5])
-               #(* 2 %)
-               inc)
+    [graph (dsl/->
+             (source/from-seq [1 2 3 4 5])
+             #(* 2 %)
+             inc
              (sink/seq))]
     (is (= ($ List & 3 5 7 9 11) (run-graph-and-wait graph)))))
 
 (deftest buffer-test
   (let
-    [graph (dsl/to-mat
-             (dsl/buffer (source/from-seq [1 2 3 4 5]) 10)
+    [graph (dsl/->
+             (source/from-seq [1 2 3 4 5])
+             (dsl/buffer 10)
              (sink/seq))]
 
     (is (= ($ List & 1 2 3 4 5) (run-graph-and-wait graph))))
   )
+
+(deftest map-async-test
+  (let [graph (dsl/->
+                (dsl/map-async (source/from-seq [1 2 3 4 5])
+                               #(future (do (Thread/sleep 1000) %)) 5 (:execution-context context))
+                (sink/seq))]
+    (is (= ($ List & 1 2 3 4 5) (run-graph-and-wait graph 2000)))))
+
 
 (deftest scala-future-test
   (let [future (future 10)]
