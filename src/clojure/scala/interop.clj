@@ -4,7 +4,8 @@
            (scala.concurrent Future Await Awaitable ExecutionContext)
            (java.util.concurrent TimeUnit)
            (scala.concurrent.duration FiniteDuration)
-           (scala Unit)))
+           (scala Unit)
+           (scala.jdk FutureConverters)))
 
 (defn nil-to-unit [x]
   (if (nil? x) Unit x))

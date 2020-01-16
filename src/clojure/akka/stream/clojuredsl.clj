@@ -26,7 +26,6 @@
 (defn run-with [^Source source ^Sink sink ^Materializer mat] (.runWith source sink mat))
 
 
-
 (defn map [^FlowOpsMat stage func] (.map stage (scala/fn [x] (scala/nil-to-unit (func x)))))
 
 (defn map-async [^FlowOpsMat stage future-func parallelism executionContext]
