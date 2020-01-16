@@ -19,6 +19,6 @@
                      (.withStopTimeout (Duration/ofMillis stop-timeout))
                      )]
 
-     (reduce #(apply .withProperty (conj %1 %2)) settings properties)))
+     (reduce #(.withProperty %1 (first %2) (second %2)) settings (partition 2 properties))))
   ([^ActorSystem actorSystem config-map]
-   (consumer-settings actorSystem (.new StringDeserializer) (.new StringDeserializer) config-map)))
+   (consumer-settings actorSystem (new StringDeserializer) (new StringDeserializer) config-map)))
