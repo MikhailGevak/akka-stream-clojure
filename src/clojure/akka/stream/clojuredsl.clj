@@ -3,13 +3,16 @@
             [akka.stream.flow :as flow])
   (:import (akka.stream.scaladsl FlowOpsMat RunnableGraph Source Sink Keep Flow FlowOps)
            (akka.stream Materializer Graph ActorMaterializer OverflowStrategy)
-           (akka.actor ActorSystem)))
+           (akka.actor ActorSystem)
+           (scala Int)))
 
-(defn to [^FlowOpsMat stage1 ^Graph sink] (.to stage1 sink))
+(defn to [^FlowOps stage1 ^Graph sink] (.to stage1 sink))
 
-(defn to-mat [^Source source ^Sink sink] (.toMat source sink (Keep/right)))
+(defn to-mat [^FlowOpsMat source ^Sink sink]
+  (println "Giiii")
+  (.toMat source sink (Keep/right)))
 
-(defn via [^FlowOpsMat stage1 stage2]
+(defn via [^FlowOps stage1 stage2]
   (cond
     (instance? FlowOps stage2)  (.via stage1 stage2)
     (instance? Sink stage2) (to-mat stage1 stage2))
@@ -36,3 +39,5 @@
     :else (flow/from-function x)))
 
 (defn -> [& stages] (reduce #(via (to-flow %1) (to-flow %2)) stages))
+
+(defn also-to [^FlowOps stage ^Sink sink] (.alsoTo stage sink))

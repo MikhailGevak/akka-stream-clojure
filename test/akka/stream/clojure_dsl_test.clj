@@ -1,4 +1,4 @@
-(ns akka-stream-clojure.core-test
+(ns akka.stream.clojure-dsl-test
   (:require [clojure.test :refer :all]
             [scala.internal :refer [$]]
             [akka.stream.clojuredsl :as dsl]
@@ -6,16 +6,11 @@
             [akka.stream.source :as source]
             [akka.stream.sink :as sink]
             [akka.stream.flow :as flow]
-            [scala.interop :as scala])
+            [scala.interop :as scala]
+            [akka.stream.test-utils :refer :all])
   (:import (scala Unit)
            (scala.collection.immutable List)
            (akka.stream.scaladsl RunnableGraph)))
-
-(def context (runner/create-context "test-system"))
-
-(defn run-graph-and-wait
-  ([graph timeout] (scala/await (runner/run ^RunnableGraph graph (:mat context)) timeout))
-  ([graph] (run-graph-and-wait graph 1000)))
 
 (deftest flow-test
   (let
