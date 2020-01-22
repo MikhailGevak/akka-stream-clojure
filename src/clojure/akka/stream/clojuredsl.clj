@@ -6,16 +6,19 @@
            (akka.actor ActorSystem)
            (scala Int)))
 
-(defn to [^FlowOps stage1 ^Graph sink] (.to stage1 sink))
+(defn to [^FlowOps stage1 ^Graph sink]
+  (println "mat")
+  (.to stage1 sink))
 
 (defn to-mat [^FlowOpsMat source ^Sink sink]
-  (println "Giiii")
+  (println "to-mat")
   (.toMat source sink (Keep/right)))
 
 (defn via [^FlowOps stage1 stage2]
   (cond
     (instance? FlowOps stage2)  (.via stage1 stage2)
-    (instance? Sink stage2) (to-mat stage1 stage2))
+    (and (instance? FlowOpsMat stage1) (instance? Sink stage2)) (to-mat stage1 stage2)
+    (instance? Sink stage2) (to stage1 stage2))
   )
 
 (defn map [^FlowOpsMat stage func] (.map stage (scala/fn [x] (scala/nil-to-unit (func x)))))
@@ -34,7 +37,7 @@
 
 (defn- to-flow [x]
   (cond
-    (instance? FlowOpsMat x) x
+    (instance? FlowOps x) x
     (instance? Sink x) x
     :else (flow/from-function x)))
 

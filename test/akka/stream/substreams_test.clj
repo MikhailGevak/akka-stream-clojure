@@ -11,4 +11,6 @@
 (deftest substreams-test
   (let
     [source (substream/group-by (source/from-seq [1 2 3 4 5 6]) 3 #(mod % 3))]
-    (is (= ($ List & 3 5 7 9 11) (run-graph-and-wait ((dsl/-> source inc (sink/seq))))))))
+    (is (= ($ List & 3 5 7 9 11) (run (dsl/-> source (pause) (sink/for-each println)))))
+    (Thread/sleep 4000)
+    ))

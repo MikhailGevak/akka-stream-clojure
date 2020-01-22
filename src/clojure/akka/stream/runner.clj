@@ -9,6 +9,7 @@
                                                        :mat (ActorMaterializer/apply system)
                                                        :execution-context (.dispatcher system)}))
 
-(defn run ([^RunnableGraph graph ^Materializer mat] (.run graph mat)))
+(defn run [^RunnableGraph graph ^Materializer mat]
+  (.run graph mat))
 
 (defn run-with [^Source source ^Sink sink ^Materializer mat] (.runWith source sink mat))
