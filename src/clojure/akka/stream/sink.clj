@@ -8,3 +8,5 @@
   (Sink/foreach (scala/fn [x] (scala/nil-to-unit (func x)))))
 
 (defn seq [] (Sink/seq))
+
+(defn ignore [] (Sink/ignore))

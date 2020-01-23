@@ -9,7 +9,11 @@
 (defn run [^RunnableGraph graph] (runner/run ^RunnableGraph graph (:mat context)))
 
 (defn run-graph-and-wait
-  ([graph timeout] (scala/await (run graph) timeout))
+  ([graph timeout]
+   (let [start-time (System/nanoTime)]
+     (let [result (scala/await (run graph) timeout)]
+       {:result result
+        :time   (- (System/nanoTime) start-time)})))
   ([graph] (run-graph-and-wait graph 1000)))
 
 (defn pause

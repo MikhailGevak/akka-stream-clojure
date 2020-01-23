@@ -18,8 +18,7 @@
   (cond
     (instance? FlowOps stage2)  (.via stage1 stage2)
     (and (instance? FlowOpsMat stage1) (instance? Sink stage2)) (to-mat stage1 stage2)
-    (instance? Sink stage2) (to stage1 stage2))
-  )
+    (instance? Sink stage2) (to stage1 stage2)))
 
 (defn map [^FlowOpsMat stage func] (.map stage (scala/fn [x] (scala/nil-to-unit (func x)))))
 
@@ -29,6 +28,8 @@
     parallelism
     (scala/fn [x] (scala/to-scala-future (future-func x) executionContext))
     ))
+
+(defn async [^FlowOps stage] (.async stage))
 
 (defn buffer
   ([^FlowOps stage size ^OverflowStrategy strategy] (.buffer stage size strategy))
@@ -41,6 +42,8 @@
     (instance? Sink x) x
     :else (flow/from-function x)))
 
-(defn -> [& stages] (reduce #(via (to-flow %1) (to-flow %2)) stages))
+(defn -->> [& stages] (reduce #(via (to-flow %1) (to-flow %2)) stages))
 
 (defn also-to [^FlowOps stage ^Sink sink] (.alsoTo stage sink))
+
+(defn runnable-graph ^RunnableGraph [{source :source flow :flow sink :sink}] (-->> source flow sink))

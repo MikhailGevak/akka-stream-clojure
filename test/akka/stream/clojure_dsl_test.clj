@@ -14,29 +14,29 @@
 
 (deftest flow-test
   (let
-    [graph (dsl/->
+    [graph (dsl/-->>
              (source/from-seq [1 2 3 4 5])
              #(* 2 %)
              inc
              (sink/seq))]
-    (is (= ($ List & 3 5 7 9 11) (run-graph-and-wait graph)))))
+    (is (= ($ List & 3 5 7 9 11) (:result (run-graph-and-wait graph))))))
 
 (deftest buffer-test
   (let
-    [graph (dsl/->
+    [graph (dsl/-->>
              (source/from-seq [1 2 3 4 5])
              (dsl/buffer 10)
              (sink/seq))]
 
-    (is (= ($ List & 1 2 3 4 5) (run-graph-and-wait graph))))
+    (is (= ($ List & 1 2 3 4 5) (:result (run-graph-and-wait graph)))))
   )
 
 (deftest map-async-test
-  (let [graph (dsl/->
+  (let [graph (dsl/-->>
                 (dsl/map-async (source/from-seq [1 2 3 4 5])
                                #(future (do (Thread/sleep 1000) %)) 5 (:execution-context context))
                 (sink/seq))]
-    (is (= ($ List & 1 2 3 4 5) (run-graph-and-wait graph 2000)))))
+    (is (= ($ List & 1 2 3 4 5) (:result (run-graph-and-wait graph 2000))))))
 
 
 (deftest scala-future-test
